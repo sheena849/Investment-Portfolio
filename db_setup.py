@@ -1,15 +1,20 @@
 import logging
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-# Suppress SQLAlchemy logs (only show warnings/errors)
-logging.basicConfig()
-logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+# Set up logging
+logging.basicConfig(level=logging.INFO)  # Set the root logger to INFO level
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARN)  # Suppress SQLAlchemy engine debug logs
 
-# Set up the database
-DATABASE_URL = "sqlite:///investment_portfolio.db"
+# Define the database URL
+DATABASE_URL = "sqlite:///investment.db"  # Using SQLite database
 
-engine = create_engine(DATABASE_URL, echo=False)  # Turn 'echo' off for cleaner output
+# Setup the database engine with echo=False to prevent SQL statement logs
+engine = create_engine(DATABASE_URL, echo=False)
+
+# Setup the sessionmaker
 Session = sessionmaker(bind=engine)
-Base = declarative_base()
 
+# Define the base class for declarative models
+Base = declarative_base()
