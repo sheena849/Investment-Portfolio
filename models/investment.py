@@ -16,9 +16,9 @@ class Investment(Base):
     date_invested = Column(Date, nullable=False)
 
     # Relationships
-    portfolio = relationship("Portfolio", back_populates="investments", cascade="all, delete-orphan", single_parent=True)
+    portfolio = relationship("Portfolio", back_populates="investments", single_parent=True)
     company = relationship("Company", back_populates="investments")  # Relationship with Company
-    transactions = relationship("Transaction", back_populates="investment", cascade="all, delete-orphan")
+    transactions = relationship("Transaction", back_populates="investment", single_parent=True)
 
     def __repr__(self):
         return (

@@ -10,13 +10,15 @@ class Transaction(Base):
     type = Column(String, nullable=False)  # e.g., "buy" or "sell"
     amount = Column(Float, nullable=False)
     investment_id = Column(Integer, ForeignKey("investments.id"))
-    portfolio_id = Column(Integer, ForeignKey("portfolios.id"))  # Add this line for the foreign key
+    portfolio_id = Column(Integer, ForeignKey("portfolios.id"))
+    company_id = Column(Integer, ForeignKey("companies.id"))  # Add foreign key to Company
     date = Column(DateTime, default=datetime.utcnow)  # Date and time of the transaction
     notes = Column(String)  # Optional field for additional information
 
     # Relationships
     investment = relationship("Investment", back_populates="transactions")
-    portfolio = relationship("Portfolio", back_populates="transactions")  # Ensure this relationship is present
+    portfolio = relationship("Portfolio", back_populates="transactions")
+    company = relationship("Company", back_populates="transactions")  # Add back reference to Company
 
     def __repr__(self):
         return (
