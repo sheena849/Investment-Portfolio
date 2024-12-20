@@ -15,51 +15,44 @@ def signup(session):
     print("--- Sign Up ---")
     username = input("Enter a username: ")
     password = input("Enter a password: ")
-    
-    # Hash the password before storing it
+  
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    print(f"Debug: Storing hashed password: {hashed_password}")  # Debug print
+    print(f"Debug: Storing hashed password: {hashed_password}")  
     
     # Create the new user in the database
-    user = User(username=username, password=hashed_password)  # Store the hashed password
+    user = User(username=username, password=hashed_password) 
     session.add(user)
     session.commit()
     
     print(f"User {username} created successfully!")
-    
-    # Add the first company for the user
     company_name = input("Enter the new company's name: ")
     industry = input("Enter the company's industry: ")
     
-    company = Company(name=company_name, industry=industry, user=user)  # Link company to user
+    company = Company(name=company_name, industry=industry, user=user)  
     session.add(company)
     session.commit()
     
     print(f"Company '{company_name}' added successfully!")
-    
-    # Ask if the user wants to add another company
     another = input("Would you like to add another company? (y/n): ")
     if another.lower() == 'y':
         signup(session)
     else:
         print("Returning to the Main Menu...")
     
-    # Ensure you pass the logged-in user when calling main_menu
+    
     main_menu(session, company, user)
 def login(session):
     print("\n--- Login ---")
     username = input("Enter your username: ")
     password = input("Enter your password: ")
-
-    # Hash the entered password and compare with stored hash
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    print(f"Debug: Checking against hashed password: {hashed_password}")  # Debug print
+    print(f"Debug: Checking against hashed password: {hashed_password}")  
 
     user = session.query(User).filter_by(username=username, password=hashed_password).first()
 
     if user:
         print(f"Welcome back, {username}!")
-        return user  # Return the user object for further use
+        return user 
     else:
         print("Invalid username or password. Please try again.")
         return None
@@ -75,7 +68,7 @@ def authentication_flow(session):
         if choice == "1":
             user = login(session)
             if user:
-                return user  # Return authenticated user
+                return user  
         elif choice == "2":
             signup(session)
         elif choice == "3":
@@ -88,11 +81,11 @@ def authentication_flow(session):
 # Functionality
 def welcome_screen():
     print("\n=== Welcome to the Investment Portfolio Tracker ===")
-    session = Session()  # Start a new session
-    user = authentication_flow(session)  # Ensure the user is logged in or signed up
+    session = Session() 
+    user = authentication_flow(session)  
 
-    if user:  # Proceed only if the user is authenticated
-        # Get the companies associated with the user (for returning users)
+    if user: 
+        
         companies = session.query(Company).filter_by(user_id=user.id).all()
 
         if companies:
@@ -113,15 +106,15 @@ def welcome_screen():
                 if 1 <= choice <= len(companies):
                     selected_company = companies[choice - 1]
                     print(f"\nYou selected {selected_company.name}!")
-                    main_menu(session, selected_company, user)  # Pass current_user here
+                    main_menu(session, selected_company, user) 
                     break
                 elif choice == len(companies) + 1:
-                    add_new_company(session, user)  # Add new company for the current user
-                    break  # Return to the main screen to refresh company list
+                    add_new_company(session, user)  
+                    break  
                 elif choice == len(companies) + 2 or choice == 2:
                     print("Exiting the program. Goodbye!")
-                    session.close()  # Properly close the session
-                    sys.exit()  # Exit gracefully
+                    session.close()  
+                    sys.exit()  
                 else:
                     print("Invalid input. Please choose a valid option.")
             except ValueError:
@@ -141,7 +134,7 @@ def main_menu(session, company, current_user):
         choice = input("Select an option: ")
 
         if choice == "1":
-            manage_portfolios(session, company, current_user)  # Pass current_user here
+            manage_portfolios(session, company, current_user)  
         elif choice == "2":
             manage_investments(session, company)
         elif choice == "3":
@@ -152,9 +145,9 @@ def main_menu(session, company, current_user):
             delete_company(session, company)
         elif choice == "6":
             print("\nReturning to the Welcome Screen...")
-            session.close()  # Close the session before going back
-            welcome_screen()  # This will call the welcome screen again
-            break  # Break the loop in main_menu to ensure it returns
+            session.close()  
+            welcome_screen()  
+            break 
         else:
             print("Invalid option. Please try again.")
 
@@ -176,10 +169,10 @@ def add_new_company(session, user=None):
         # Ask if they want to add another company or go back to the main menu
         choice = input("\nWould you like to add another company? (y/n): ").lower()
         if choice == 'y':
-            continue  # Loop to add another company
+            continue 
         elif choice == 'n':
             print("Returning to the Main Menu...\n")
-            return new_company  # Return the last added company to proceed
+            return new_company  
         else:
             print("Invalid choice, please enter 'y' or 'n'.")
 
@@ -225,13 +218,13 @@ def manage_portfolios(session, company, current_user):
         choice = input("Select an option: ")
 
         if choice == "1":
-            create_portfolio(session, company, current_user)  # Pass current_user here
+            create_portfolio(session, company, current_user)  
         elif choice == "2":
-            view_portfolios(session, company, current_user)  # Pass current_user here
+            view_portfolios(session, company, current_user) 
         elif choice == "3":
-            update_portfolio(session, company, current_user)  # Pass current_user here
+            update_portfolio(session, company, current_user)  
         elif choice == "4":
-            delete_portfolio(session, company, current_user)  # Pass current_user here
+            delete_portfolio(session, company, current_user)  
         elif choice == "5":
             break
         else:
@@ -291,17 +284,17 @@ def create_portfolio(session, company, current_user):
     while True:
         try:
             budget = float(input("Budget: "))
-            break  # exit loop if valid input is provided
+            break  
         except ValueError:
             print("Invalid input. Please enter a numeric value for budget.")
     
-    # Associate portfolio with the logged-in user
+    
     portfolio = Portfolio(
         name=name, 
         description=description, 
         budget=budget, 
         company=company,
-        user_id=current_user.id  # Make sure the user_id is set
+        user_id=current_user.id  
     )
     
     session.add(portfolio)
@@ -314,12 +307,12 @@ def view_portfolios(session, company, current_user):
             print(f"ID: {p.id}, Name: {p.name}, Budget: {p.budget}, Description: {p.description}")
     else:
         print("No portfolios available for this company.")
-def update_portfolio(session, company, current_user):  # Add current_user as a parameter
-    view_portfolios(session, company, current_user)  # Pass current_user here
+def update_portfolio(session, company, current_user): 
+    view_portfolios(session, company, current_user)  
     while True:
         try:
             portfolio_id = int(input("Enter Portfolio ID to update: "))
-            portfolio = session.query(Portfolio).filter_by(id=portfolio_id, user_id=current_user.id).first()  # Ensure user_id is checked
+            portfolio = session.query(Portfolio).filter_by(id=portfolio_id, user_id=current_user.id).first()  
             if portfolio:
                 print(f"Current Name: {portfolio.name}")
                 portfolio.name = input("New Name (leave blank to keep current): ") or portfolio.name
@@ -342,15 +335,13 @@ def update_portfolio(session, company, current_user):  # Add current_user as a p
         except ValueError:
             print("Invalid ID. Please enter a valid Portfolio ID.")
 def delete_portfolio(session, company, current_user):
-    # Pass current_user to view_portfolios
-    view_portfolios(session, company, current_user)  # Display portfolios before deletion
-
+    view_portfolios(session, company, current_user)  
     try:
         portfolio_id = int(input("Enter Portfolio ID to delete: "))
         portfolio = session.query(Portfolio).filter_by(id=portfolio_id, company_id=company.id).first()
 
         if portfolio:
-            # Delete related investments and transactions
+            
             for investment in portfolio.investments:
                 session.delete(investment)
             for transaction in portfolio.transactions:
@@ -363,8 +354,6 @@ def delete_portfolio(session, company, current_user):
             print(f"Portfolio with ID {portfolio_id} not found for company '{company.name}'.")
     except ValueError:
         print("Invalid ID. Please enter a valid Portfolio ID.")
-
-
 # Investment CRUD operations (Create, View, Update, Delete)
 def create_investment(session, company):
     try:
@@ -373,7 +362,7 @@ def create_investment(session, company):
         print("Company not found. Exiting.")
         return
 
-    # Get portfolios associated with the company
+    
     portfolios = session.query(Portfolio).filter_by(company_id=company.id).all()
 
     if not portfolios:
@@ -391,8 +380,6 @@ def create_investment(session, company):
             break
         except (ValueError, IndexError):
             print("Invalid selection. Please choose a valid portfolio.")
-
-    # Prompt user for investment details
     investment_name = input("Enter Investment Name: ").strip()
     if not investment_name:
         print("Investment name is required. Exiting.")
@@ -420,8 +407,6 @@ def create_investment(session, company):
     except ValueError:
         print("Invalid date format. Investment not created.")
         return
-
-    # Create the investment object
     investment = Investment(
         name=investment_name,
         investment_type=investment_type,
@@ -453,55 +438,53 @@ def view_investments(session, company):
     else:
         print(f"No investments found for company '{company.name}'.")
 def update_investment(session, company):
-    view_investments(session, company)  # Display current investments
+    view_investments(session, company)  
 
     try:
-        # Step 1: Get the investment to update
         investment_id = int(input("Enter Investment ID to update: "))
         investment = session.query(Investment).filter_by(id=investment_id, company_id=company.id).first()
 
         if investment:
             print(f"\nInvestment found: {investment.name}, {investment.value}, {investment.risk_level}, {investment.expected_return}, {investment.date_invested.strftime('%Y-%m-%d')}")
 
-            # Step 2: Update fields directly
-            # Update Name
+            
             new_name = input(f"Current Name: {investment.name}. New Name (leave blank to keep current): ").strip()
             if new_name:
                 investment.name = new_name
 
-            # Update Investment Type
+           
             new_investment_type = input(f"Current Investment Type: {investment.investment_type}. New Investment Type (leave blank to keep current): ").strip()
             if new_investment_type:
                 investment.investment_type = new_investment_type
 
-            # Update Value
+           
             while True:
                 new_value = input(f"Current Value: {investment.value}. New Value (leave blank to keep current): ").strip()
                 if not new_value:
-                    break  # Keep current
+                    break  
                 try:
                     investment.value = float(new_value)
                     break
                 except ValueError:
                     print("Invalid value. Please enter a numeric value.")
 
-            # Update Risk Level
+            
             new_risk_level = input(f"Current Risk Level: {investment.risk_level}. New Risk Level (leave blank to keep current): ").strip()
             if new_risk_level:
                 investment.risk_level = new_risk_level
 
-            # Update Expected Return
+           
             while True:
                 new_expected_return = input(f"Current Expected Return: {investment.expected_return}. New Expected Return (leave blank to keep current): ").strip()
                 if not new_expected_return:
-                    break  # Keep current
+                    break  
                 try:
                     investment.expected_return = float(new_expected_return)
                     break
                 except ValueError:
                     print("Invalid expected return. Please enter a numeric value.")
 
-            # Update Date Invested
+            
             new_date_invested = input(f"Current Date Invested: {investment.date_invested.strftime('%Y-%m-%d')}. New Date (YYYY-MM-DD, leave blank to keep current): ").strip()
             if new_date_invested:
                 try:
@@ -510,7 +493,7 @@ def update_investment(session, company):
                 except ValueError:
                     print("Invalid date format. Keeping current date.")
 
-            # Step 3: Commit Changes
+            
             session.commit()
             print("\nInvestment updated successfully!")
             print(f"Updated Investment: {investment}")
@@ -520,7 +503,7 @@ def update_investment(session, company):
         print("Invalid ID. Please enter a valid Investment ID.")
 
 def delete_investment(session, company):
-    view_investments(session, company)  # Display investments before deletion
+    view_investments(session, company) 
 
     try:
         investment_id = int(input("Enter Investment ID to delete: "))
@@ -534,21 +517,14 @@ def delete_investment(session, company):
             print(f"Investment with ID {investment_id} not found for company '{company.name}'.")
     except ValueError:
         print("Invalid ID. Please enter a valid Investment ID.")
-
-
-
-
 def create_transaction(session, company):
     try:
-        # Query the company by its name to get the company object
-        company = session.query(Company).filter_by(name=company.name).one()  # Fetch the company object
+       
+        company = session.query(Company).filter_by(name=company.name).one() 
     except NoResultFound:
         print(f"Company '{company.name}' not found.")
         return
-
-    # Gather the details for the transaction
     investment_id = int(input("Enter Investment ID to add transaction: "))
-    
     while True:
         try:
             amount = float(input("Transaction Amount: "))
@@ -560,7 +536,6 @@ def create_transaction(session, company):
     if transaction_type not in ['buy', 'sell']:
         print("Invalid transaction type. Please enter 'buy' or 'sell'.")
         return
-
     date_str = input("Transaction Date (YYYY-MM-DD): ") or datetime.today().strftime('%Y-%m-%d')
     try:
         transaction_date = datetime.strptime(date_str, "%Y-%m-%d")
@@ -570,8 +545,6 @@ def create_transaction(session, company):
 
     portfolio_id = int(input("Enter Portfolio ID: "))
     notes = input("Enter any notes for the transaction: ")
-
-    # Create a new Transaction and set the company_id explicitly
     transaction = Transaction(
         investment_id=investment_id, 
         amount=amount, 
@@ -579,7 +552,7 @@ def create_transaction(session, company):
         date=transaction_date,
         portfolio_id=portfolio_id,  
         notes=notes,
-        company_id=company.id  # Explicitly set the company_id
+        company_id=company.id  
     )
     
     session.add(transaction)
@@ -587,9 +560,8 @@ def create_transaction(session, company):
     print("Transaction added successfully!")
 
 def view_transactions(session, company):
-    # Fetch all transactions related to the company by joining with the Investment table
+    
     transactions = session.query(Transaction).join(Investment).filter(Investment.company_id == company.id).all()
-
     if transactions:
         print("\n--- Transactions ---")
         for t in transactions:
@@ -598,51 +570,38 @@ def view_transactions(session, company):
     else:
         print("No transactions found for this company.")
 def update_transaction(session, company):
-    # Ask the user for the transaction ID to update
+    
     try:
         transaction_id = int(input("Enter Transaction ID to update: "))
     except ValueError:
         print("Invalid ID. Please enter a valid integer.")
         return
-
-    # Fetch the transaction by ID
     transaction = session.query(Transaction).filter_by(id=transaction_id).first()
-
     if not transaction:
         print(f"Transaction with ID {transaction_id} not found!")
         return
-
-    # Provide current details
     print(f"Current transaction details: {transaction}")
-    
-    # Ask for new values, including portfolio_id and notes
     transaction_type = input(f"Enter new transaction type (current: {transaction.type}): ") or transaction.type
     amount = input(f"Enter new amount (current: {transaction.amount}): ") or str(transaction.amount)
     date = input(f"Enter new transaction date (current: {transaction.date}): ") or str(transaction.date)
     portfolio_id = input(f"Enter new Portfolio ID (current: {transaction.portfolio_id}): ") or str(transaction.portfolio_id)
     notes = input(f"Enter new notes (current: {transaction.notes}): ") or transaction.notes
-
-    # Validate and update the transaction
     try:
         if transaction_type not in ['buy', 'sell']:
             print("Invalid transaction type!")
             return
-        
-        # Update the fields
         transaction.type = transaction_type
         transaction.amount = float(amount)
         transaction.date = datetime.strptime(date, "%Y-%m-%d")
         transaction.portfolio_id = int(portfolio_id)
         transaction.notes = notes
-
-        # Commit the changes to the database
         session.commit()
         print("Transaction updated successfully!")
     
     except ValueError as e:
         print(f"Error: {e}")
 def delete_transaction(session, company):
-    view_transactions(session, company)  # Display transactions before deletion
+    view_transactions(session, company)  
     
     try:
         transaction_id = int(input("Enter Transaction ID to delete: "))
@@ -660,7 +619,5 @@ def delete_transaction(session, company):
             print(f"Transaction with ID {transaction_id} not found.")
     except ValueError:
         print("Invalid ID. Please enter a valid Transaction ID.")
-
-
 if __name__ == "__main__":
     welcome_screen()
